@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选择小节 · 圆锥曲线探究课堂</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --purple-50: #f5f3ff;
+    --purple-100: #ede9fe;
+    --purple-200: #ddd6fe;
+    --purple-300: #c4b5fd;
+    --purple-400: #a78bfa;
+    --purple-500: #8b5cf6;
+    --purple-600: #7c3aed;
+    --purple-700: #6d28d9;
+    --purple-800: #5b21b6;
+    --purple-900: #4c1d95;
+    --text-main: #1e1b4b;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --bg-page: #faf9ff;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(124, 58, 237, 0.06);
+    --shadow-md: 0 4px 16px rgba(124, 58, 237, 0.08);
+    --shadow-lg: 0 8px 30px rgba(124, 58, 237, 0.12);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---- Top Bar ---- */
+.top-bar {
+    padding: 16px 28px;
+    background: var(--white);
+    border-bottom: 1px solid var(--purple-100);
+    box-shadow: var(--shadow-sm);
+}
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--purple-600);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.back-link:hover {
+    color: var(--purple-800);
+}
+.back-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ---- Page Header ---- */
+.page-header {
+    text-align: center;
+    padding: 48px 24px 36px;
+    background: linear-gradient(170deg, var(--white) 0%, var(--purple-50) 60%, var(--purple-100) 100%);
+}
+.page-header .curve-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+.page-header h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--purple-800);
+    margin-bottom: 8px;
+}
+.page-header .sub {
+    font-size: 15px;
+    color: var(--text-muted);
+}
+
+/* ---- Section Cards ---- */
+.sections-wrapper {
+    max-width: 720px;
+    margin: -8px auto 0;
+    padding: 0 24px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.section-card {
+    background: var(--white);
+    border: 1.5px solid var(--purple-200);
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.section-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+    border-radius: 14px 0 0 14px;
+}
+.section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--purple-400);
+}
+
+/* Accent per curve */
+.section-card[data-curve="ellipse"]::before   { background: #3b82f6; }
+.section-card[data-curve="hyperbola"]::before  { background: #f59e0b; }
+.section-card[data-curve="parabola"]::before   { background: #10b981; }
+
+/* ---- Number Badge ---- */
+.section-num {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+.section-card[data-curve="ellipse"] .section-num   { background: #eff6ff; color: #2563eb; }
+.section-card[data-curve="hyperbola"] .section-num  { background: #fffbeb; color: #d97706; }
+.section-card[data-curve="parabola"] .section-num   { background: #ecfdf5; color: #059669; }
+
+/* ---- Card Text ---- */
+.section-body {
+    flex: 1;
+}
+.section-body h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+.section-body .desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+.section-body .tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 16px;
+}
+.section-card[data-curve="ellipse"] .tag   { background: #dbeafe; color: #1d4ed8; }
+.section-card[data-curve="hyperbola"] .tag { background: #fef3c7; color: #b45309; }
+.section-card[data-curve="parabola"] .tag  { background: #d1fae5; color: #047857; }
+
+/* ---- Arrow ---- */
+.section-arrow {
+    flex-shrink: 0;
+    align-self: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--purple-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+}
+.section-card:hover .section-arrow {
+    background: var(--purple-200);
+    transform: translateX(3px);
+}
+.section-arrow svg {
+    width: 16px;
+    height: 16px;
+    color: var(--purple-600);
+}
+
+/* ---- Footer ---- */
+.footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 13px;
+    color: var(--text-light);
+    border-top: 1px solid var(--purple-100);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .sections-wrapper {
+        padding: 0 16px 40px;
+    }
+    .section-card {
+        padding: 20px 20px;
+        gap: 14px;
+    }
+    .page-header { padding: 36px 20px 28px; }
+    .page-header h1 { font-size: 24px; }
+    .section-num { width: 44px; height: 44px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a class="back-link" href="/">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg>
+        返回曲线选择
+    </a>
+</div>
+
+<div class="page-header">
+    <div class="curve-icon" id="curveIcon"></div>
+    <h1 id="pageTitle">选择小节</h1>
+    <p class="sub" id="pageSub"></p>
+</div>
+
+<div class="sections-wrapper" id="sectionsContainer">
+    <!-- Populated by JS -->
+</div>
+
+<div class="footer">
+    复旦大学硕士论文项目 &middot; 基于多智能体协作的高中数学交互教学系统
+</div>
+
+<script>
+(function() {
+    const DATA = {
+        ellipse: {
+            icon: '\u{1F535}',
+            name: '椭圆',
+            sub: '从定义出发，推导方程，探究几何性质',
+            sections: [
+                {
+                    num: '3.1.1',
+                    title: '椭圆及其标准方程',
+                    desc: '从圆出发，由两个焦点定义椭圆，推导标准方程，做3道经典例题。',
+                    link: '/interactive?course=ellipse_311'
+                },
+                {
+                    num: '3.1.2',
+                    title: '椭圆的简单几何性质',
+                    desc: '由方程反推图形：范围、对称、顶点、长短轴、离心率+3道例题。',
+                    link: '/interactive?course=ellipse_312'
+                }
+            ]
+        },
+        hyperbola: {
+            icon: '\u{1F7E0}',
+            name: '双曲线',
+            sub: '两支开口的对称曲线，渐近线与离心率',
+            sections: [
+                {
+                    num: '3.2.1',
+                    title: '双曲线及其标准方程',
+                    desc: '从两焦点距离之差出发，推导双曲线标准方程，掌握定义与基本量。',
+                    link: '/interactive?course=hyperbola_321'
+                },
+                {
+                    num: '3.2.2',
+                    title: '双曲线的简单几何性质',
+                    desc: '实轴虚轴、渐近线、离心率，从方程读出几何特征+例题训练。',
+                    link: '/interactive?course=hyperbola_322'
+                }
+            ]
+        },
+        parabola: {
+            icon: '\u{1F7E2}',
+            name: '抛物线',
+            sub: '焦点准线模型，最简洁的圆锥曲线',
+            sections: [
+                {
+                    num: '3.3.1',
+                    title: '抛物线及其标准方程',
+                    desc: '焦点与准线等距定义，推导四种标准方程，经典例题巩固。',
+                    link: '/interactive?course=parabola_331'
+                },
+                {
+                    num: '3.3.2',
+                    title: '抛物线的简单几何性质',
+                    desc: '开口方向、焦半径、焦点弦，几何性质全覆盖+例题练习。',
+                    link: '/interactive?course=parabola_332'
+                }
+            ]
+        }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const curve = params.get('curve') || 'ellipse';
+    const info = DATA[curve] || DATA.ellipse;
+
+    document.title = info.name + ' · 选择小节 · 圆锥曲线探究课堂';
+    document.getElementById('curveIcon').textContent = info.icon;
+    document.getElementById('pageTitle').textContent = info.name + ' · 选择小节';
+    document.getElementById('pageSub').textContent = info.sub;
+
+    const container = document.getElementById('sectionsContainer');
+    info.sections.forEach(function(s) {
+        const a = document.createElement('a');
+        a.className = 'section-card';
+        a.setAttribute('data-curve', curve);
+        a.href = s.link;
+        a.innerHTML =
+            '<div class="section-num">' + s.num + '</div>' +
+            '<div class="section-body">' +
+                '<h2>' + s.title + '</h2>' +
+                '<p class="desc">' + s.desc + '</p>' +
+                '<span class="tag">教材对齐</span>' +
+            '</div>' +
+            '<div class="section-arrow">' +
+                '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638l-3.96-4.158a.75.75 0 111.08-1.04l5.25 5.5a.75.75 0 010 1.08l-5.25 5.5a.75.75 0 11-1.08-1.04l3.96-4.158H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>' +
+            '</div>';
+        container.appendChild(a);
+    });
+})();
+</script>
+
+</body>
+</html>

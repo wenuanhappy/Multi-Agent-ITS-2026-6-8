@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>圆锥曲线探究课堂</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --purple-50: #f5f3ff;
+    --purple-100: #ede9fe;
+    --purple-200: #ddd6fe;
+    --purple-300: #c4b5fd;
+    --purple-400: #a78bfa;
+    --purple-500: #8b5cf6;
+    --purple-600: #7c3aed;
+    --purple-700: #6d28d9;
+    --purple-800: #5b21b6;
+    --purple-900: #4c1d95;
+    --text-main: #1e1b4b;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --bg-page: #faf9ff;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(124, 58, 237, 0.06);
+    --shadow-md: 0 4px 16px rgba(124, 58, 237, 0.08);
+    --shadow-lg: 0 8px 30px rgba(124, 58, 237, 0.12);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg-page);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ---- Header ---- */
+.hero {
+    text-align: center;
+    padding: 80px 24px 48px;
+    background: linear-gradient(170deg, var(--white) 0%, var(--purple-50) 50%, var(--purple-100) 100%);
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--purple-800);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    position: relative;
+}
+.hero .subtitle {
+    font-size: 17px;
+    color: var(--text-muted);
+    font-weight: 400;
+    position: relative;
+}
+
+/* ---- Cards Container ---- */
+.cards-wrapper {
+    max-width: 1040px;
+    margin: -16px auto 0;
+    padding: 0 24px 48px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Card ---- */
+.card {
+    background: var(--white);
+    border: 1.5px solid var(--purple-200);
+    border-radius: 16px;
+    padding: 36px 28px 28px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--purple-400);
+}
+.card:hover::before {
+    opacity: 1;
+}
+
+/* Card accent colors */
+.card.ellipse::before  { background: linear-gradient(90deg, #3b82f6, #60a5fa); opacity: 1; }
+.card.hyperbola::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); opacity: 1; }
+.card.parabola::before { background: linear-gradient(90deg, #10b981, #34d399); opacity: 1; }
+
+/* ---- Icon ---- */
+.card-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+.card.ellipse .card-icon   { background: #eff6ff; }
+.card.hyperbola .card-icon { background: #fffbeb; }
+.card.parabola .card-icon  { background: #ecfdf5; }
+
+.card-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+/* ---- Text ---- */
+.card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+.card .desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+.card .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+.card.ellipse .badge   { background: #dbeafe; color: #1d4ed8; }
+.card.hyperbola .badge { background: #fef3c7; color: #b45309; }
+.card.parabola .badge  { background: #d1fae5; color: #047857; }
+
+/* ---- Footer ---- */
+.footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 13px;
+    color: var(--text-light);
+    border-top: 1px solid var(--purple-100);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 800px) {
+    .cards-wrapper {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+        gap: 20px;
+    }
+    .hero { padding: 48px 20px 36px; }
+    .hero h1 { font-size: 28px; }
+}
+@media (min-width: 801px) and (max-width: 1000px) {
+    .cards-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 680px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>圆锥曲线探究课堂</h1>
+    <p class="subtitle">和 AI 老师一起探索高中数学</p>
+</div>
+
+<div class="cards-wrapper">
+    <!-- 椭圆 -->
+    <a class="card ellipse" href="/section?curve=ellipse">
+        <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="24" cy="24" rx="20" ry="13" stroke="#3b82f6" stroke-width="2.5" fill="none"/>
+                <circle cx="14" cy="24" r="2" fill="#3b82f6"/>
+                <circle cx="34" cy="24" r="2" fill="#3b82f6"/>
+            </svg>
+        </div>
+        <h2>椭圆</h2>
+        <p class="desc">两焦点距离之和为常数的轨迹。从定义到性质，2小节完整覆盖。</p>
+        <span class="badge">2小节 &middot; 3.1.1 / 3.1.2</span>
+    </a>
+
+    <!-- 双曲线 -->
+    <a class="card hyperbola" href="/section?curve=hyperbola">
+        <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 6 Q24 24 8 42" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M40 6 Q24 24 40 42" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <circle cx="18" cy="24" r="2" fill="#f59e0b"/>
+                <circle cx="30" cy="24" r="2" fill="#f59e0b"/>
+            </svg>
+        </div>
+        <h2>双曲线</h2>
+        <p class="desc">两焦点距离之差为常数的轨迹。两支开口与渐近线，2小节探究。</p>
+        <span class="badge">2小节 &middot; 3.2.1 / 3.2.2</span>
+    </a>
+
+    <!-- 抛物线 -->
+    <a class="card parabola" href="/section?curve=parabola">
+        <div class="card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- 开口朝右的抛物线（与原系统一致） -->
+                <path d="M38 6 Q4 24 38 42" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <!-- 焦点 -->
+                <circle cx="26" cy="24" r="2" fill="#10b981"/>
+                <!-- 准线（左侧竖线） -->
+                <line x1="8" y1="10" x2="8" y2="38" stroke="#10b981" stroke-width="1.8"/>
+            </svg>
+        </div>
+        <h2>抛物线</h2>
+        <p class="desc">到焦点与到准线距离相等的轨迹。焦点准线模型，2小节探究。</p>
+        <span class="badge">2小节 &middot; 3.3.1 / 3.3.2</span>
+    </a>
+</div>
+
+<div class="footer">
+    复旦大学硕士论文项目 &middot; 基于多智能体协作的高中数学交互教学系统
+</div>
+
+</body>
+</html>
